@@ -10,11 +10,6 @@ type Player = {
   mark: PlayerMark
 }
 
-type Coordinates = {
-  x: number
-  y: number
-}
-
 type Board = [
   [PlayerMark | null, PlayerMark | null, PlayerMark | null],
   [PlayerMark | null, PlayerMark | null, PlayerMark | null],
@@ -28,6 +23,23 @@ export type Game = {
   player1: Player
   player2: Player
   board: Board
+}
+
+const initialState: Game = {
+  turn: PlayerMark.CROSS,
+  winner: null,
+  status: GameStatus.ONGOING,
+  player1: {
+    mark: PlayerMark.CROSS
+  },
+  player2: {
+    mark: PlayerMark.CIRCLE
+  },
+  board: [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null],
+  ]
 }
 
 const Block = ({onClick, mark}: { mark: PlayerMark | null, onClick: Function }) => (
@@ -59,22 +71,7 @@ const deepCloneGame = (game: Game): Game => ({
 })
 
 const TicTacToe = () => {
-  const [game, updateGame] = React.useState<Game>({
-    turn: PlayerMark.CROSS,
-    winner: null,
-    status: GameStatus.ONGOING,
-    player1: {
-      mark: PlayerMark.CROSS
-    },
-    player2: {
-      mark: PlayerMark.CIRCLE
-    },
-    board: [
-      [null, null, null],
-      [null, null, null],
-      [null, null, null],
-    ]
-  });
+  const [game, updateGame] = React.useState<Game>(initialState);
 
   const returnWinner = (__game: Game) => {
     const sameMark = (pc: number[][]) => {
@@ -130,6 +127,10 @@ const TicTacToe = () => {
     updateGame(g)
   }
 
+  const restart = () => {
+    updateGame(deepCloneGame(initialState))
+  }
+
 
   return (
     <div>
@@ -145,9 +146,11 @@ const TicTacToe = () => {
         </div>
         <Board game={game} click={click}/>
         <div className="UI" style={{paddingTop: 16}}>
-          <div className="item button-jittery">
-            <button>Restart</button>
-          </div>
+          {game.winner &&
+            <div className="item button-jittery">
+              <button onClick={restart}>Restart</button>
+            </div>
+          }
         </div>
       </div>
     </div>
