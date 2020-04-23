@@ -7,6 +7,7 @@ enum PlayerMark { CROSS = 'X', CIRCLE = 'O' }
 enum GameStatus { ONGOING, END}
 
 type Player = {
+  id: string
   mark: PlayerMark
 }
 
@@ -25,14 +26,31 @@ export type Game = {
   board: Board
 }
 
+type OnlineBoard = [
+  string,
+  string,
+  string,
+]
+export type OnlineGame = {
+  turn: PlayerMark
+  winner: Player | ''
+  status: GameStatus
+  player1: Player
+  player2: Player
+  board: OnlineBoard
+  hasStarted: boolean
+}
+
 const initialState: Game = {
   turn: PlayerMark.CROSS,
   winner: null,
   status: GameStatus.ONGOING,
   player1: {
+    id: '',
     mark: PlayerMark.CROSS
   },
   player2: {
+    id: '',
     mark: PlayerMark.CIRCLE
   },
   board: [
@@ -70,8 +88,59 @@ const deepCloneGame = (game: Game): Game => ({
   ]
 })
 
-const TicTacToe = () => {
-  const [game, updateGame] = React.useState<Game>(initialState);
+const onlineBlockToLocalBlock = (state: string): (PlayerMark | null) => {
+  console.log('STATE', state, state === `${PlayerMark.CROSS}`, `${PlayerMark.CROSS}`)
+  if (state === `${PlayerMark.CROSS}`) return PlayerMark.CROSS;
+  if (state === `${PlayerMark.CIRCLE}`) return PlayerMark.CIRCLE;
+
+  return null;
+}
+const onlineToLocalGame = (og: OnlineGame) => {
+  const l1 = og.board[0].split(',');
+  const l2 = og.board[1].split(',');
+  const l3 = og.board[2].split(',');
+
+  const b: Board = [
+    [onlineBlockToLocalBlock(l1[0]), onlineBlockToLocalBlock(l1[1]), onlineBlockToLocalBlock(l1[2])],
+    [onlineBlockToLocalBlock(l2[0]), onlineBlockToLocalBlock(l2[1]), onlineBlockToLocalBlock(l2[2])],
+    [onlineBlockToLocalBlock(l3[0]), onlineBlockToLocalBlock(l3[1]), onlineBlockToLocalBlock(l3[2])]
+  ];
+
+  const g: Game = {
+    turn: og.turn,
+    status: og.status,
+    player1: {...og.player1},
+    player2: {...og.player2},
+    board: b,
+    winner: null,
+  }
+  return g;
+}
+
+const localToOnlineBlock = (a: PlayerMark | null, b: PlayerMark | null, c: PlayerMark | null) =>
+  [a || -1, b || -1, c || -1].join(',')
+
+const localToOnlineGame = (g: Game) => {
+  const b: OnlineBoard = [
+    localToOnlineBlock(g.board[0][0], g.board[0][1], g.board[0][2]),
+    localToOnlineBlock(g.board[1][0], g.board[1][1], g.board[1][2]),
+    localToOnlineBlock(g.board[2][0], g.board[2][1], g.board[2][2]),
+  ]
+
+  const og: OnlineGame = {
+    turn: g.turn,
+    status: g.status,
+    player1: {...g.player1},
+    player2: {...g.player2},
+    board: b,
+    winner: g.winner || '',
+    hasStarted: false,
+  }
+  return og;
+}
+
+const OnlineTicTacToe = ({onlinegame, updateGame}: { onlinegame: OnlineGame, updateGame: Function }) => {
+  const game = onlineToLocalGame(onlinegame)
   const [hasStarted, updateHasStarted] = React.useState(false);
   const [plays, setNumberOfPlays] = React.useState(0);
 
@@ -82,7 +151,10 @@ const TicTacToe = () => {
       const c = __game.board[pc[2][0]][pc[2][1]]
 
       if (a === b && b === c) {
-        return a;
+        if (__game.player1.mark === a) {
+          return __game.player1;
+        }
+        return __game.player2;
       }
       return null;
     }
@@ -105,7 +177,7 @@ const TicTacToe = () => {
       const sm = sameMark(pc);
 
       if (sm) {
-        return {mark: sm}
+        return sm;
       }
     }
     return null;
@@ -126,13 +198,13 @@ const TicTacToe = () => {
 
     g.winner = returnWinner(g)
 
-    updateGame(g)
+    updateGame(localToOnlineGame(g))
     updateHasStarted(true)
-    setNumberOfPlays(plays+1)
+    setNumberOfPlays(plays + 1)
   }
 
   const restart = () => {
-    updateGame(deepCloneGame(initialState))
+    // updateGame(deepCloneGame(initialState))
     updateHasStarted(false)
     setNumberOfPlays(0)
   }
@@ -142,7 +214,7 @@ const TicTacToe = () => {
   return (
     <div>
       <div className="boardWithUI">
-        <div className="UI" style={{ marginBottom: 16}}>
+        <div className="UI" style={{marginBottom: 16}}>
           <h1>
             {game.winner && <><b>{game.winner?.mark}</b> has won!</>}
             {!hasStarted && <>Tic-Tac-Toe</>}
@@ -163,4 +235,4 @@ const TicTacToe = () => {
   )
 }
 
-export default TicTacToe
+export default OnlineTicTacToe
