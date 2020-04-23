@@ -72,6 +72,7 @@ const deepCloneGame = (game: Game): Game => ({
 
 const TicTacToe = () => {
   const [game, updateGame] = React.useState<Game>(initialState);
+  const [hasStarted, updateHasStarted] = React.useState(false);
 
   const returnWinner = (__game: Game) => {
     const sameMark = (pc: number[][]) => {
@@ -125,10 +126,12 @@ const TicTacToe = () => {
     g.winner = returnWinner(g)
 
     updateGame(g)
+    updateHasStarted(true)
   }
 
   const restart = () => {
     updateGame(deepCloneGame(initialState))
+    updateHasStarted(false)
   }
 
 
@@ -137,19 +140,17 @@ const TicTacToe = () => {
       <div className="boardWithUI">
         <div className="UI">
           <h1>
-            {game.winner ?
-              <><b>{game.winner?.mark}</b> has won!</>
-              :
-              <>Tic-Tac-Toe</>
-            }
+            {game.winner && <><b>{game.winner?.mark}</b> has won!</>}
+            {!hasStarted && <>Tic-Tac-Toe</>}
+            {!game.winner && hasStarted && <>It's <b>{game.turn}</b> turn</>}
           </h1>
         </div>
         <Board game={game} click={click}/>
         <div className="UI" style={{paddingTop: 16}}>
           {game.winner &&
-            <div className="item button-jittery">
-              <button onClick={restart}>Restart</button>
-            </div>
+          <div className="item button-jittery">
+            <button onClick={restart}>Restart</button>
+          </div>
           }
         </div>
       </div>
