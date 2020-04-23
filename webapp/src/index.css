@@ -7,9 +7,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   background: rgba(0, 77, 64,1.0);
+
+  font-family: 'Roboto', sans-serif;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+h1 {
+  font-family: 'Comic Neue', cursive;
+  font-size: 6rem;
 }

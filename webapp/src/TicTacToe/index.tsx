@@ -61,7 +61,7 @@ const deepCloneGame = (game: Game): Game => ({
 const TicTacToe = () => {
   const [game, updateGame] = React.useState<Game>({
     turn: PlayerMark.CROSS,
-    winner: { mark: PlayerMark.CROSS},
+    winner: null,
     status: GameStatus.ONGOING,
     player1: {
       mark: PlayerMark.CROSS
@@ -115,7 +115,7 @@ const TicTacToe = () => {
   const click = (x: number, y: number) => {
     const g: Game = deepCloneGame(game)
 
-    if (g.board[x][y]) return;
+    if (g.board[x][y] || g.winner) return;
 
     g.board[x][y] = game.turn;
 
@@ -131,13 +131,17 @@ const TicTacToe = () => {
   }
 
 
-  console.log('render')
   return (
     <div>
-      {game.winner && <div>
-        winner: {game.winner.mark}
-      </div>}
-      <Board game={game} click={click}/>
+      <div className="boardWithUI">
+        <div className="UI">
+          <h1>Tic-Tac-Toe</h1>
+        </div>
+        <Board game={game} click={click}/>
+        <div className="UI">
+          <p><b>{game.winner?.mark}</b> has won!</p>
+        </div>
+      </div>
     </div>
   )
 }
