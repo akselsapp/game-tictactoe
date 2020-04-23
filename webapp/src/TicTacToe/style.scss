@@ -1,0 +1,31 @@
+$lgSize: 500px;
+$borderSize: 8px;
+
+
+.board {
+  border: $borderSize solid rgba(0, 96, 100, 0.6);
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -$lgSize / 2;
+  margin-left: -$lgSize / 2;
+
+  height: $lgSize;
+  width: $lgSize;
+
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+}
+
+.block {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+
+  border: $borderSize solid rgba(0, 96, 100, 0.6);
+
+  font-weight: bold;
+  font-size: 4em;
+}
