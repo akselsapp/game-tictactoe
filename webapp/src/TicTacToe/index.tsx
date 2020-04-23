@@ -115,7 +115,7 @@ const TicTacToe = () => {
   const click = (x: number, y: number) => {
     const g: Game = deepCloneGame(game)
 
-    if (g.board[x][y] || g.winner) return;
+    if (g.board[x][y] || g.winner) return;
 
     g.board[x][y] = game.turn;
 
@@ -135,11 +135,19 @@ const TicTacToe = () => {
     <div>
       <div className="boardWithUI">
         <div className="UI">
-          <h1>Tic-Tac-Toe</h1>
+          <h1>
+            {game.winner ?
+              <><b>{game.winner?.mark}</b> has won!</>
+              :
+              <>Tic-Tac-Toe</>
+            }
+          </h1>
         </div>
         <Board game={game} click={click}/>
-        <div className="UI">
-          <p><b>{game.winner?.mark}</b> has won!</p>
+        <div className="UI" style={{paddingTop: 16}}>
+          <div className="item button-jittery">
+            <button>Restart</button>
+          </div>
         </div>
       </div>
     </div>
