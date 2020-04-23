@@ -138,7 +138,7 @@ const TicTacToe = () => {
   return (
     <div>
       <div className="boardWithUI">
-        <div className="UI">
+        <div className="UI" style={{ marginBottom: 16}}>
           <h1>
             {game.winner && <><b>{game.winner?.mark}</b> has won!</>}
             {!hasStarted && <>Tic-Tac-Toe</>}
