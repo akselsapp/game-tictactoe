@@ -2,31 +2,142 @@ import React from 'react';
 
 import './style.scss'
 
-const Block = ({ player }: {player: number}) => (
-  <div className="block">
-    {player === 1 && 'X'}
-    {player === 0 && 'O'}
+enum PlayerMark { CROSS = 'X', CIRCLE = 'O' }
+
+enum GameStatus { ONGOING, END}
+
+type Player = {
+  mark: PlayerMark
+}
+
+type Coordinates = {
+  x: number
+  y: number
+}
+
+type Board = [
+  [PlayerMark | null, PlayerMark | null, PlayerMark | null],
+  [PlayerMark | null, PlayerMark | null, PlayerMark | null],
+  [PlayerMark | null, PlayerMark | null, PlayerMark | null],
+]
+
+export type Game = {
+  turn: PlayerMark
+  winner: Player | null
+  status: GameStatus
+  player1: Player
+  player2: Player
+  board: Board
+}
+
+const Block = ({onClick, mark}: { mark: PlayerMark | null, onClick: Function }) => (
+  <div className="block" onClick={onClick as any}>
+    {mark === PlayerMark.CROSS && 'X'}
+    {mark === PlayerMark.CIRCLE && 'O'}
   </div>
 )
 
-const Board = () => (
+const Board = ({game, click}: { game: Game, click: Function }) => (
   <div className="board">
-    <Block player={1} />
-    <Block player={1} />
-    <Block player={1} />
-    <Block player={1} />
-    <Block player={1} />
-    <Block player={1} />
-    <Block player={1} />
-    <Block player={1} />
-    <Block player={1} />
+    {game.board.map((line, x) => line.map((mark, y) =>
+      <Block key={`${x}-${y}`} mark={mark} onClick={() => click(x, y)}/>
+    ))}
   </div>
 )
+
+const deepCloneGame = (game: Game): Game => ({
+  turn: game.turn,
+  winner: game.winner,
+  status: game.status,
+  player1: {...game.player1},
+  player2: {...game.player2},
+  board: [
+    [game.board[0][0], game.board[0][1], game.board[0][2]],
+    [game.board[1][0], game.board[1][1], game.board[1][2]],
+    [game.board[2][0], game.board[2][1], game.board[2][2]],
+  ]
+})
 
 const TicTacToe = () => {
+  const [game, updateGame] = React.useState<Game>({
+    turn: PlayerMark.CROSS,
+    winner: { mark: PlayerMark.CROSS},
+    status: GameStatus.ONGOING,
+    player1: {
+      mark: PlayerMark.CROSS
+    },
+    player2: {
+      mark: PlayerMark.CIRCLE
+    },
+    board: [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null],
+    ]
+  });
+
+  const returnWinner = (__game: Game) => {
+    const sameMark = (pc: number[][]) => {
+      const a = __game.board[pc[0][0]][pc[0][1]]
+      const b = __game.board[pc[1][0]][pc[1][1]]
+      const c = __game.board[pc[2][0]][pc[2][1]]
+
+      if (a === b && b === c) {
+        return a;
+      }
+      return null;
+    }
+
+    const possibleCombinations = [
+      // rows
+      [[0, 0], [0, 1], [0, 2]],
+      [[1, 0], [1, 1], [1, 2]],
+      [[2, 0], [2, 1], [2, 2]],
+      // columns
+      [[0, 0], [1, 0], [2, 0]],
+      [[0, 1], [1, 1], [2, 1]],
+      [[0, 2], [1, 2], [2, 2]],
+      // diagonals
+      [[0, 0], [1, 1], [2, 2]],
+      [[0, 2], [1, 1], [2, 0]],
+    ];
+
+    for (const pc of possibleCombinations) {
+      const sm = sameMark(pc);
+
+      if (sm) {
+        return {mark: sm}
+      }
+    }
+    return null;
+  }
+
+  const click = (x: number, y: number) => {
+    const g: Game = deepCloneGame(game)
+
+    if (g.board[x][y]) return;
+
+    g.board[x][y] = game.turn;
+
+    if (g.turn === PlayerMark.CROSS) {
+      g.turn = PlayerMark.CIRCLE
+    } else {
+      g.turn = PlayerMark.CROSS
+    }
+
+    g.winner = returnWinner(g)
+
+    updateGame(g)
+  }
+
+
+  console.log('render')
   return (
     <div>
-      <Board/>
+      {game.winner && <div>
+        winner: {game.winner.mark}
+      </div>}
+      <Board game={game} click={click}/>
     </div>
   )
 }
