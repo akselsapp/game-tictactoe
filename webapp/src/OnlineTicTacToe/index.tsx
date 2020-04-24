@@ -4,7 +4,7 @@ import './style.scss'
 
 enum PlayerMark { CROSS = 'X', CIRCLE = 'O' }
 
-enum GameStatus { ONGOING, END}
+export enum GameStatus { WAITING_FOR_OPPONENT, ONGOING, END}
 
 type Player = {
   id: string
@@ -41,24 +41,6 @@ export type OnlineGame = {
   hasStarted: boolean
 }
 
-const initialState: Game = {
-  turn: PlayerMark.CROSS,
-  winner: null,
-  status: GameStatus.ONGOING,
-  player1: {
-    id: '',
-    mark: PlayerMark.CROSS
-  },
-  player2: {
-    id: '',
-    mark: PlayerMark.CIRCLE
-  },
-  board: [
-    [null, null, null],
-    [null, null, null],
-    [null, null, null],
-  ]
-}
 
 const Block = ({onClick, mark}: { mark: PlayerMark | null, onClick: Function }) => (
   <div className="block" onClick={onClick as any}>
@@ -89,7 +71,6 @@ const deepCloneGame = (game: Game): Game => ({
 })
 
 const onlineBlockToLocalBlock = (state: string): (PlayerMark | null) => {
-  console.log('STATE', state, state === `${PlayerMark.CROSS}`, `${PlayerMark.CROSS}`)
   if (state === `${PlayerMark.CROSS}`) return PlayerMark.CROSS;
   if (state === `${PlayerMark.CIRCLE}`) return PlayerMark.CIRCLE;
 
@@ -133,13 +114,13 @@ const localToOnlineGame = (g: Game) => {
     player1: {...g.player1},
     player2: {...g.player2},
     board: b,
-    winner: g.winner || '',
+    winner: g.winner || '',
     hasStarted: false,
   }
   return og;
 }
 
-const OnlineTicTacToe = ({onlinegame, updateGame}: { onlinegame: OnlineGame, updateGame: Function }) => {
+const OnlineTicTacToe = ({onlinegame, updateGame, onCellClick, hints}: { onlinegame: OnlineGame, updateGame: Function, onCellClick: Function, hints: any }) => {
   const game = onlineToLocalGame(onlinegame)
   const [hasStarted, updateHasStarted] = React.useState(false);
   const [plays, setNumberOfPlays] = React.useState(0);
@@ -204,13 +185,11 @@ const OnlineTicTacToe = ({onlinegame, updateGame}: { onlinegame: OnlineGame, upd
   }
 
   const restart = () => {
-    // updateGame(deepCloneGame(initialState))
     updateHasStarted(false)
     setNumberOfPlays(0)
   }
 
   console.log('game', game)
-
   return (
     <div>
       <div className="boardWithUI">
@@ -222,8 +201,9 @@ const OnlineTicTacToe = ({onlinegame, updateGame}: { onlinegame: OnlineGame, upd
             {!game.winner && plays === 9 && <>It's a <b>Tie</b></>}
           </h1>
         </div>
-        <Board game={game} click={click}/>
+        <Board game={game} click={onCellClick}/>
         <div className="UI" style={{paddingTop: 16}}>
+          {hints}
           {game.winner &&
           <div className="item button-jittery">
             <button onClick={restart}>Restart</button>

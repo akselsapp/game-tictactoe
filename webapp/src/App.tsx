@@ -2,17 +2,29 @@ import React from 'react';
 import './App.css';
 import './button.scss'
 
+import axios from 'axios'
+
 import * as FireService from './services/fire';
 import useQueryString from './hooks/useQueryString'
 
 import TicTacToe from './TicTacToe'
-import OnlineTicTacToe from "./OnlineTicTacToe";
+import OnlineTicTacToe, {OnlineGame, GameStatus} from "./OnlineTicTacToe";
+
+const joinGame = async (user: any, gameID: string) => {
+  await axios.post('https://europe-west2-board-games-d4306.cloudfunctions.net/ticTacToe_joinGame', {
+    gameID
+  }, {
+    headers: {
+      'Authorization': `Bearer ${await user.getIdToken(false)}`
+    }
+  })
+}
 
 const App = () => {
   const [user, setUser] = React.useState();
-  const [userId, setUserId] = React.useState();
+  const [userID, setUserID] = React.useState();
   const [error, setError] = React.useState();
-  const [game, setGame] = React.useState();
+  const [game, setGame] = React.useState<OnlineGame | null>(null);
 
   // Use a custom hook to subscribe to the grocery list ID provided as a URL query parameter
   const [gameID, setGameID]: any = useQueryString('gameID');
@@ -20,20 +32,30 @@ const App = () => {
   // Use an effect to authenticate and load the grocery list from the database
   React.useEffect(() => {
     FireService.authenticateAnonymously().then((userCredentials: any) => {
-      setUserId(userCredentials.user.uid);
+      setUserID(userCredentials.user.uid);
+      setUser(userCredentials.user)
 
       if (gameID) {
         FireService.getGame(gameID)
-        .onSnapshot((convo) => {
+          .onSnapshot((convo) => {
             if (convo && convo.exists) {
               setError(null);
-              setGame(convo.data());
+
+              // retrieve the game
+              const og = convo.data() as OnlineGame
+              // join the game
+              if (
+                (!og.player1.id || !og.player2.id) &&
+                (og.player1.id !== userCredentials.user.uid && og.player2.id !== userCredentials.user.uid)) {
+                joinGame(userCredentials.user, gameID);
+              }
+
+              setGame(og);
             } else {
               setError('game-not-found');
               setGameID();
             }
           })
-
       }
     }).catch(() => setError('anonymous-auth-failed'));
   }, [gameID, setGameID]);
@@ -42,11 +64,83 @@ const App = () => {
     FireService.updateGame(gameID, obj);
   }
 
+  const newGame = async () => {
+    const token = await user?.getIdToken(false);
+    const {data} = await axios.post('https://europe-west2-board-games-d4306.cloudfunctions.net/ticTacToe_newGame', {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    setGameID(data.gameID)
+  }
+
+  const newOfflineGame = () => true
+
+  const onCellClick = async (x: number, y: number) => {
+    const token = await user?.getIdToken(false);
+    await axios.post('https://europe-west2-board-games-d4306.cloudfunctions.net/ticTacToe_click', {
+      x, y,
+      gameID,
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+  }
+
+  console.log('OGG', game)
+
+  let playerMark = null;
+  if (userID && game) {
+    if (game.player1.id === userID)
+      playerMark = game.player1.mark;
+    if (game.player2.id === userID)
+      playerMark = game.player2.mark
+  }
+  const playerTurn = game ? playerMark === game.turn : false;
 
   return (
     <div className="App">
+      {!gameID && user &&
+      <div>
+        <div className="item button-jittery">
+          <button onClick={newGame}>Start a new ONLINE GAME</button>
+        </div>
+        <div className="item button-jittery">
+          <button onClick={newOfflineGame}>Start a new OFFLINE GAME</button>
+        </div>
+      </div>
+      }
       {game &&
-      <OnlineTicTacToe onlinegame={game} updateGame={updateGame}/>
+      <OnlineTicTacToe
+        onlinegame={game}
+        updateGame={updateGame}
+        onCellClick={onCellClick}
+        hints={
+          <>
+            {game && game.status === GameStatus.ONGOING &&
+            <div>
+              {playerMark && <p>You are <b>{playerMark}</b> it {playerTurn ? <b>is</b> : <b>is not</b>} your turn</p>}
+            </div>
+            }
+
+            {game && game.status === GameStatus.WAITING_FOR_OPPONENT &&
+            <div>
+              Waiting for an opponent.<br />Send them this link: <b>{window.location.href}</b>
+            </div>
+            }
+
+            {game && game.status === GameStatus.END &&
+            <div>
+              {game.winner &&
+              <>You {game.winner === userID ? <b>WON</b> : <b>LOST</b>}</>
+              }
+              {!game.winner && <>{`It's a `}<b>Tie</b></>}
+            </div>
+            }
+          </>
+        }
+      />
       }
     </div>
   );
