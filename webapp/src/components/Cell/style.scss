@@ -1,0 +1,30 @@
+@import '../../variables';
+
+
+.cell {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  box-sizing: border-box;
+
+  border: $borderSize solid rgba(0, 96, 100, 0.6);
+
+  font-weight: bold;
+  font-size: 4em;
+
+  @media (max-width: #{$screen-md-min}) {
+    border: ($borderSize / 2) solid rgba(0, 96, 100, 0.6);
+    font-size: 2em;
+  }
+}
+
+.cell-enabled {
+  &:hover {
+    border: $borderSize solid rgba(253, 216, 53, 1.0);
+    @media (max-width: #{$screen-md-min}) {
+      border: ($borderSize / 2) solid rgba(253, 216, 53, 1.0);
+    }
+    cursor: pointer;
+  }
+}

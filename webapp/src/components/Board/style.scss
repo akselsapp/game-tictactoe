@@ -1,9 +1,5 @@
 @import '../../variables';
 
-$lgSize: 500px;
-$uiSize: 100px;
-$borderSize: 8px;
-
 
 .boardWithUI {
   position: fixed;
@@ -41,30 +37,3 @@ $borderSize: 8px;
 
   box-sizing: border-box;
 }
-
-.block {
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
-  box-sizing: border-box;
-
-  border: $borderSize solid rgba(0, 96, 100, 0.6);
-
-  &:hover {
-    border: $borderSize solid rgba(253, 216, 53, 1.0);
-    @media (max-width: #{$screen-md-min}) {
-      border: ($borderSize / 2) solid rgba(253, 216, 53, 1.0);
-    }
-    cursor: pointer;
-  }
-
-  font-weight: bold;
-  font-size: 4em;
-
-  @media (max-width: #{$screen-md-min}) {
-    border: ($borderSize / 2) solid rgba(0, 96, 100, 0.6);
-    font-size: 2em;
-  }
-}
-
