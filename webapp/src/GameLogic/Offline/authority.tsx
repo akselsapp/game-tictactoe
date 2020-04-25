@@ -1,4 +1,4 @@
-import {Game, GameStatus} from "../../shared/types";
+import {Game, GameStatus, PlayerMark} from "../../shared/types";
 
 const possibleWinningCombinations = [
   // rows
@@ -27,10 +27,18 @@ const gameAuthority = (game: Game) => {
     game.board[2].split(','),
   ];
 
+  let moveLeft = false;
+
   const sameMark = (pc: number[][]) => {
     const a = l[pc[0][0]][pc[0][1]]
     const b = l[pc[1][0]][pc[1][1]]
     const c = l[pc[2][0]][pc[2][1]]
+
+    const notPM = (x: string) => x !== PlayerMark.CROSS && x !== PlayerMark.CIRCLE;
+
+    if (notPM(a) || notPM(b) || notPM(c)) {
+      moveLeft = true;
+    }
 
     // if we have a winning combination
     if (a === b && b === c) {
@@ -54,6 +62,12 @@ const gameAuthority = (game: Game) => {
       return sm;
     }
   }
+
+  // tie
+  if (!moveLeft) {
+    return { winner: '', status: GameStatus.END };
+  }
+
   return sm;
 }
 

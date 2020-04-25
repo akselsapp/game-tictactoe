@@ -38,10 +38,15 @@ const OfflineWrapper = ({user, game, gameID, setGame, setGameID, children}: Offl
       {game.status === GameStatus.END && game.winner &&
       <>
         <b>
-        {game.winner === game.player1.id && game.player1.mark}
-        {game.winner === game.player2.id && game.player2.mark}
+          {game.winner === game.player1.id && game.player1.mark}
+          {game.winner === game.player2.id && game.player2.mark}
         </b>
         {' '}won!
+      </>
+      }
+      {game.status === GameStatus.END && !game.winner &&
+      <>
+        It's a <b>Tie</b>
       </>
       }
     </>
