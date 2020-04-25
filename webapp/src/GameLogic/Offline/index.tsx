@@ -54,7 +54,7 @@ const OfflineWrapper = ({user, game, gameID, setGame, setGameID, children}: Offl
 
   const interactions = () => {
     if (game.status === GameStatus.END) {
-      return (<div style={{marginTop: 8}}>
+      return (<div style={{marginTop: 32}}>
           <div className="item button-jittery">
             <button onClick={() => setGame(newOfflineGame())}><b>RESTART</b> GAME
             </button>
