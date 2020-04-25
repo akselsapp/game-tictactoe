@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions';
+import {Game} from "../../../webapp/src/shared/types";
 
 const cors = require('cors');
 
@@ -64,21 +65,22 @@ const possibleWinningCombinations = [
   [[0, 0], [1, 1], [2, 2]],
   [[0, 2], [1, 1], [2, 0]],
 ];
-
 const gameAuthority = (game: OnlineGame) => {
   if (!game.player1.id || !game.player2.id) return ({
     winner: '',
     status: GameStatus.WAITING_FOR_OPPONENT,
   })
 
-  const l1 = game.board[0].split(',');
-  const l2 = game.board[0].split(',');
-  const l3 = game.board[0].split(',');
+  const l = [
+    game.board[0].split(','),
+    game.board[1].split(','),
+    game.board[2].split(','),
+  ];
 
   const sameMark = (pc: number[][]) => {
-    const a = l1[pc[0][0]][pc[0][1]]
-    const b = l2[pc[1][0]][pc[1][1]]
-    const c = l3[pc[2][0]][pc[2][1]]
+    const a = l[pc[0][0]][pc[0][1]]
+    const b = l[pc[1][0]][pc[1][1]]
+    const c = l[pc[2][0]][pc[2][1]]
 
     // if we have a winning combination
     if (a === b && b === c) {
@@ -87,7 +89,7 @@ const gameAuthority = (game: OnlineGame) => {
         return {winner: game.player1.id, status: GameStatus.END}
       }
       // or player 2
-      if (game.player1.mark === a) {
+      if (game.player2.mark === a) {
         return {winner: game.player2.id, status: GameStatus.END}
       }
     }
@@ -104,7 +106,6 @@ const gameAuthority = (game: OnlineGame) => {
   }
   return sm;
 }
-
 export const ticTacToe_click = functions.region('europe-west2').https.onRequest((request, response) =>
   corsHandler(request, response, async () => {
     if (!request || !request.headers || !request.headers.authorization) {
