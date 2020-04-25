@@ -1,0 +1,59 @@
+import React from "react";
+
+import gameAuthority from "./authority";
+import actions from './actions'
+import {Game, GameStatus} from "../../shared/types";
+import newOfflineGame from "../../tools/newOfflineGame";
+
+type OfflineWrapperProps = {
+  user: any;
+  gameID: string;
+  setGame: Function;
+  setGameID: Function;
+  children: Function;
+  game: Game | null;
+}
+
+const OfflineWrapper = ({user, game, gameID, setGame, setGameID, children}: OfflineWrapperProps) => {
+  const [error, setError] = React.useState();
+
+  if (!game) return null;
+
+  const onClick = (g: Game) => (x: number, y: number) => {
+    const g = actions.click(game, x, y);
+
+    setGame({
+      ...g,
+      ...gameAuthority(g),
+    })
+  }
+
+  const ui = () => (
+    <>
+      {game.status === GameStatus.ONGOING &&
+      <>
+        It's <b>{game.turn}</b> turn
+      </>
+      }
+      {game.status === GameStatus.END && game.winner &&
+      <>
+        {game.winner === game.player1.id && game.player1.mark}
+        {game.winner === game.player2.id && game.player2.mark}
+        {' '}won!
+      </>
+      }
+      {game.status === GameStatus.END &&
+      <div style={{ marginTop: 8 }}>
+        <div className="item button-jittery">
+          <button onClick={() => setGame(newOfflineGame())}><b>RESTART</b> GAME
+          </button>
+        </div>
+      </div>
+      }
+    </>
+  )
+
+  return children({onClick, ui});
+}
+
+export default OfflineWrapper

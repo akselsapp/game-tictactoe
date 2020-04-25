@@ -2,6 +2,8 @@ export enum PlayerMark { CROSS = 'X', CIRCLE = 'O' }
 
 export enum GameStatus { WAITING_FOR_OPPONENT, ONGOING, END}
 
+export enum GameType { UNSET, OFFLINE, ONLINE}
+
 export type Player = {
   id: string
   mark: PlayerMark
@@ -16,7 +18,7 @@ export type GameBoard = [
 
 export type Game = {
   turn: PlayerMark
-  winner: Player | ''
+  winner: string;
   status: GameStatus
   player1: Player
   player2: Player
