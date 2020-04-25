@@ -8,7 +8,10 @@ import * as FireService from './services/fire';
 import useQueryString from './hooks/useQueryString'
 
 import TicTacToe from './TicTacToe'
-import OnlineTicTacToe, {OnlineGame, GameStatus} from "./OnlineTicTacToe";
+import OnlineTicTacToe from "./OnlineTicTacToe";
+import {OnlineGame, GameStatus} from './shared/types'
+import onlineToLocalGame from "./tools/onlineToLocalGame";
+import Board from "./components/Board";
 
 const joinGame = async (user: any, gameID: string) => {
   await axios.post('https://europe-west2-board-games-d4306.cloudfunctions.net/ticTacToe_joinGame', {
@@ -99,49 +102,59 @@ const App = () => {
   }
   const playerTurn = game ? playerMark === game.turn : false;
 
+
   return (
     <div className="App">
-      {!gameID && user &&
-      <div>
-        <div className="item button-jittery">
-          <button onClick={newGame}>Start a new ONLINE GAME</button>
+      <div className="boardWithUI">
+        <div className="UI" style={{marginBottom: 16}}>
+          <h1>Tic-Tac-Toe</h1>
         </div>
-        <div className="item button-jittery">
-          <button onClick={newOfflineGame}>Start a new OFFLINE GAME</button>
+        {game &&
+        <Board
+          game={onlineToLocalGame(game)}
+          click={onCellClick}
+        />
+        }
+        <div className="UI" style={{paddingTop: 16}}>
+          {game && game.status === GameStatus.ONGOING &&
+          <div>
+            {playerMark && <p>You are <b>{playerMark}</b> it {playerTurn ? <b>is</b> : <b>is not</b>} your turn</p>}
+          </div>
+          }
+
+          {game && game.status === GameStatus.END &&
+          <div>
+            {game.winner &&
+            <>You {game.winner === userID ? <b>WON</b> : <b>LOST</b>}</>
+            }
+            {!game.winner && <>{`It's a `}<b>Tie</b></>}
+          </div>
+          }
+          {game && game.status === GameStatus.WAITING_FOR_OPPONENT &&
+          <div>
+            <div>Waiting for an <b>opponent</b>.</div>
+            <br /><br/>
+            Send them this link:<br />
+            <small>
+              <b>{window.location.href}</b>
+            </small>
+          </div>
+          }
+
+          {!gameID && user &&
+          <div>
+            <div className="item button-jittery">
+              <button onClick={newGame}>Start a new <b>ONLINE</b> GAME</button>
+            </div>
+            <br/><br/>
+            <div className="item button-jittery">
+              <button onClick={newOfflineGame}>Start a new <b>OFFLINE</b> GAME</button>
+            </div>
+          </div>
+          }
         </div>
       </div>
-      }
-      {game &&
-      <OnlineTicTacToe
-        onlinegame={game}
-        updateGame={updateGame}
-        onCellClick={onCellClick}
-        hints={
-          <>
-            {game && game.status === GameStatus.ONGOING &&
-            <div>
-              {playerMark && <p>You are <b>{playerMark}</b> it {playerTurn ? <b>is</b> : <b>is not</b>} your turn</p>}
-            </div>
-            }
 
-            {game && game.status === GameStatus.WAITING_FOR_OPPONENT &&
-            <div>
-              Waiting for an opponent.<br />Send them this link: <b>{window.location.href}</b>
-            </div>
-            }
-
-            {game && game.status === GameStatus.END &&
-            <div>
-              {game.winner &&
-              <>You {game.winner === userID ? <b>WON</b> : <b>LOST</b>}</>
-              }
-              {!game.winner && <>{`It's a `}<b>Tie</b></>}
-            </div>
-            }
-          </>
-        }
-      />
-      }
     </div>
   );
 }

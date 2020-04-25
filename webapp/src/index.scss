@@ -20,9 +20,9 @@ code {
 
 h1 {
   font-family: 'Comic Neue', cursive;
-  font-size: 6rem;
+  font-size: 4rem;
   @media (max-width: #{$screen-md-min}) {
-    font-size: 3rem;
+    font-size: 2rem;
   }
   b {
     color: rgba(253, 216, 53, 1.0);

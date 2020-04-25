@@ -4,7 +4,7 @@ import "firebase/auth";
 
 import firebaseConfig from './fireConfig'
 
-import { OnlineGame } from '../OnlineTicTacToe'
+import { OnlineGame } from '../shared/types'
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
