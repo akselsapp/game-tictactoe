@@ -13,7 +13,7 @@ const joinGame = async (user: any, gameID: string) => {
   })
 }
 
-const onCellClick = (user: any) => (game: Game) => async (x: number, y: number, gameID: string) => {
+const onCellClick = (user: any) => (game: Game, gameID: string) => async (x: number, y: number) => {
   const token = await user?.getIdToken(false);
   await axios.post(`${baseURL}/ticTacToe_click`, {
     x, y,
@@ -25,8 +25,19 @@ const onCellClick = (user: any) => (game: Game) => async (x: number, y: number, 
   })
 }
 
+const newGame = async (user: any) => {
+  const token = await user?.getIdToken(false);
+  const {data} = await axios.post(`${baseURL}/ticTacToe_newGame`, {}, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  return data.gameID;
+}
+
 
 export default {
   join: joinGame,
   onCellClick,
+  newGame,
 }

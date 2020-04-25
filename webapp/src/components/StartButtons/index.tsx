@@ -5,16 +5,19 @@ type StartButtonsPropsType = {
   newOffline: Function,
   newOnline: Function,
   gameType: GameType
+  user: any;
 }
 
-const StartButtons = ({gameType, newOffline, newOnline}: StartButtonsPropsType) => {
+const StartButtons = ({gameType, newOffline, newOnline, user}: StartButtonsPropsType) => {
   if (gameType !== GameType.UNSET) return null;
 
   return (
     <div>
+      {user &&
       <div className="item button-jittery">
         <button onClick={() => newOnline()}>Start a new <b>ONLINE</b> GAME</button>
       </div>
+      }
       <br/><br/>
       <div className="item button-jittery">
         <button onClick={() => newOffline()}>Start a new <b>OFFLINE</b> GAME
