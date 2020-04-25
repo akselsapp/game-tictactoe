@@ -1,5 +1,4 @@
 import * as functions from 'firebase-functions';
-import {Game} from "../../../webapp/src/shared/types";
 
 const cors = require('cors');
 
