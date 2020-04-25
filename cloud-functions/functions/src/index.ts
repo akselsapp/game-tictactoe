@@ -84,15 +84,17 @@ const gameAuthority = (game: OnlineGame) => {
     if (a === b && b === c) {
       // it's either player 1
       if (game.player1.mark === a) {
-        return { winner: game.player1.id, status: GameStatus.END }
+        return {winner: game.player1.id, status: GameStatus.END}
       }
-      // or 2
-      return { winner: game.player2.id, status: GameStatus.END }
+      // or player 2
+      if (game.player1.mark === a) {
+        return {winner: game.player2.id, status: GameStatus.END}
+      }
     }
-    return { winner: '', status: GameStatus.ONGOING }
+    return {winner: '', status: GameStatus.ONGOING}
   }
 
-  let sm = { winner: '', status: GameStatus.ONGOING };
+  let sm = {winner: '', status: GameStatus.ONGOING};
   for (const pc of possibleWinningCombinations) {
     sm = sameMark(pc);
 
