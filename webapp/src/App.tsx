@@ -7,10 +7,9 @@ import axios from 'axios'
 import * as FireService from './services/fire';
 import useQueryString from './hooks/useQueryString'
 
-import TicTacToe from './TicTacToe'
-import OnlineTicTacToe from "./OnlineTicTacToe";
-import {OnlineGame, GameStatus} from './shared/types'
-import onlineToLocalGame from "./tools/onlineToLocalGame";
+import {Game, GameStatus} from './shared/types'
+import newOfflineGame from "./tools/newOfflineGame";
+
 import Board from "./components/Board";
 
 const joinGame = async (user: any, gameID: string) => {
@@ -27,7 +26,7 @@ const App = () => {
   const [user, setUser] = React.useState();
   const [userID, setUserID] = React.useState();
   const [error, setError] = React.useState();
-  const [game, setGame] = React.useState<OnlineGame | null>(null);
+  const [game, setGame] = React.useState<Game | null>(null);
 
   // Use a custom hook to subscribe to the grocery list ID provided as a URL query parameter
   const [gameID, setGameID]: any = useQueryString('gameID');
@@ -45,7 +44,7 @@ const App = () => {
               setError(null);
 
               // retrieve the game
-              const og = convo.data() as OnlineGame
+              const og = convo.data() as Game
               // join the game
               if (
                 (!og.player1.id || !og.player2.id) &&
@@ -63,10 +62,6 @@ const App = () => {
     }).catch(() => setError('anonymous-auth-failed'));
   }, [gameID, setGameID]);
 
-  const updateGame = (obj: any) => {
-    FireService.updateGame(gameID, obj);
-  }
-
   const newGame = async () => {
     const token = await user?.getIdToken(false);
     const {data} = await axios.post('https://europe-west2-board-games-d4306.cloudfunctions.net/ticTacToe_newGame', {}, {
@@ -76,8 +71,6 @@ const App = () => {
     })
     setGameID(data.gameID)
   }
-
-  const newOfflineGame = () => true
 
   const onCellClick = async (x: number, y: number) => {
     const token = await user?.getIdToken(false);
@@ -111,7 +104,7 @@ const App = () => {
         </div>
         {game &&
         <Board
-          game={onlineToLocalGame(game)}
+          game={game}
           click={onCellClick}
         />
         }
@@ -148,7 +141,7 @@ const App = () => {
             </div>
             <br/><br/>
             <div className="item button-jittery">
-              <button onClick={newOfflineGame}>Start a new <b>OFFLINE</b> GAME</button>
+              <button onClick={() => { setGame(newOfflineGame()) }}>Start a new <b>OFFLINE</b> GAME</button>
             </div>
           </div>
           }
