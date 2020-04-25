@@ -24,9 +24,6 @@ h1 {
   @media (max-width: #{$screen-md-min}) {
     font-size: 2rem;
   }
-  b {
-    color: rgba(253, 216, 53, 1.0);
-  }
 
   cursor: pointer;
 }
@@ -34,4 +31,11 @@ h1 {
 .button {
   color: white;
   background: red;
+}
+
+.indications {
+  b {
+    color: $yellow;
+    font-size: 2rem;
+  }
 }

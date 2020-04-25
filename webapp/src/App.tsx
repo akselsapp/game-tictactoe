@@ -64,16 +64,19 @@ const App = () => {
           <h1 onClick={reset}>Tic-Tac-Toe</h1>
         </div>
         <GameWrapper user={user} gameID={gameID} setGame={setGame} setGameID={setGameID} game={game}>
-          {({onClick, ui}: { onClick: Function, ui: Function }) => (
+          {({onClick, ui, interactions}: { onClick: Function, ui: Function, interactions: Function }) => (
             <>
+              <div className="indications">
+                {ui()}
+              </div>
               {game &&
               <Board
                 game={game}
                 click={onClick(game, gameID)}
               />
               }
-              <div className="UI">
-                {ui()}
+              <div className="actions">
+                {interactions()}
               </div>
             </>
           )}

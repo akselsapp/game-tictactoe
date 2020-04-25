@@ -80,7 +80,9 @@ const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children}: Onlin
     </>
   )
 
-  return children({onClick: api.onCellClick(user), ui});
+  const interactions = () => null;
+
+  return children({onClick: api.onCellClick(user), ui, interactions});
 }
 
 export default OnlineWrapper

@@ -37,23 +37,30 @@ const OfflineWrapper = ({user, game, gameID, setGame, setGameID, children}: Offl
       }
       {game.status === GameStatus.END && game.winner &&
       <>
+        <b>
         {game.winner === game.player1.id && game.player1.mark}
         {game.winner === game.player2.id && game.player2.mark}
+        </b>
         {' '}won!
       </>
-      }
-      {game.status === GameStatus.END &&
-      <div style={{ marginTop: 8 }}>
-        <div className="item button-jittery">
-          <button onClick={() => setGame(newOfflineGame())}><b>RESTART</b> GAME
-          </button>
-        </div>
-      </div>
       }
     </>
   )
 
-  return children({onClick, ui});
+  const interactions = () => {
+    if (game.status === GameStatus.END) {
+      return (<div style={{marginTop: 8}}>
+          <div className="item button-jittery">
+            <button onClick={() => setGame(newOfflineGame())}><b>RESTART</b> GAME
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return null;
+  }
+
+  return children({onClick, ui, interactions});
 }
 
 export default OfflineWrapper
