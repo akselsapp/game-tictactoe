@@ -39,3 +39,26 @@ h1 {
     font-size: 2rem;
   }
 }
+
+.btn {
+  transform: scale(0.7);
+
+  button {
+    font: 16px 'Comic Neue', cursive;
+
+    b {
+      color: $yellow;
+    }
+  }
+}
+
+a {
+  color: $yellow;
+  text-decoration: none;
+}
+
+small {
+  @media (max-width: #{$screen-md-min}) {
+    font-size: 0.8rem;
+  }
+}

@@ -52,7 +52,7 @@ const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children}: Onlin
   const playerTurn = game ? playerMark === game.turn : false;
 
   const ui = () => (
-    <>
+    <div style={{ marginBottom: 8 }}>
       {game && game.status === GameStatus.ONGOING &&
       <div>
         {playerMark && <p>You are <b>{playerMark}</b> it {playerTurn ? <b>is</b> : <b>is not</b>} your turn</p>}
@@ -69,18 +69,22 @@ const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children}: Onlin
       }
       {game && game.status === GameStatus.WAITING_FOR_OPPONENT &&
       <div>
-        <div>Waiting for an <b>opponent</b>.</div>
-        <br/><br/>
-        Send them this link:<br/>
-        <small>
-          <b>{window.location.href}</b>
-        </small>
+        <div>Waiting for an <b>opponent</b></div>
       </div>
       }
-    </>
+    </div>
   )
 
-  const interactions = () => null;
+  const interactions = () => (
+    <div style={{marginTop: 32}}>
+      Send them this link:<br/>
+      <small>
+        <a href={window.location.href}>
+          <b>{window.location.href}</b>
+        </a>
+      </small>
+    </div>
+  );
 
   return children({onClick: api.onCellClick(user), ui, interactions});
 }

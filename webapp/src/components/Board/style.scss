@@ -1,23 +1,28 @@
 @import '../../variables';
 
+$scaleSmallScreen: 1.5;
 
 .boardWithUI {
   position: fixed;
   top: 50%;
   left: 50%;
-  margin-top: -($lgSize + $uiSize * 3) / 2;
-  margin-left: -($lgSize) / 2;
+  margin-top: -($lgSize + $uiSize * 3) / $scaleSmallScreen;
+  margin-left: -($lgSize) / $scaleSmallScreen;
+
+  width: $lgSize;
 
   @media (max-width: #{$screen-md-min}) {
-    margin-top: -($lgSize / 2 + ($uiSize /2) * 3) / 2;
-    margin-left: -($lgSize /2) / 2;
+
+    width: $lgSize / $scaleSmallScreen;
+    margin-top: -($lgSize / $scaleSmallScreen + $uiSize * 2) / $scaleSmallScreen;
+    margin-left: -$lgSize / $scaleSmallScreen / 2;
   }
 }
 
 .UI {
   height: $uiSize;
   @media (max-width: #{$screen-md-min}) {
-    height: $uiSize / 2;
+    height: $uiSize / $scaleSmallScreen;
   }
 }
 
@@ -31,8 +36,8 @@
   grid-template: repeat(3, 1fr) / repeat(3, 1fr);
 
   @media (max-width: #{$screen-md-min}) {
-    height: $lgSize / 2;
-    width: $lgSize / 2;
+    height: $lgSize / $scaleSmallScreen;
+    width: $lgSize / $scaleSmallScreen;
   }
 
   box-sizing: border-box;
