@@ -301,12 +301,18 @@ export const ticTacToe_joinGame = functions.region('europe-west2').https.onReque
   })
 );
 
-export const ticTacToe_newGame = functions.region('europe-west2').https.onRequest((request, response) =>
+export const ticTacToe_resetGame = functions.region('europe-west2').https.onRequest((request, response) =>
   corsHandler(request, response, async () => {
     const g = initGameData();
+    const d = request.body;
 
-    // response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-    // response.set('Access-Control-Allow-Methods', 'POST')
+    if (!d.gameID) {
+      response.status(401).json({
+        message: 'Missing gameID',
+        payload: d,
+      });
+      return;
+    }
 
     if (!request || !request.headers || !request.headers.authorization) {
       response.status(403).send('Unauthorized');
@@ -314,12 +320,45 @@ export const ticTacToe_newGame = functions.region('europe-west2').https.onReques
 
     // @ts-ignore
     const idToken = request.headers.authorization.split('Bearer ')[1];
+    const user = await admin.auth().verifyIdToken(idToken);
 
-    const decodedIdToken = await admin.auth().verifyIdToken(idToken);
+    // retrieve game
+    const doc = await admin.firestore().collection(COLLECTION).doc(d.gameID).get();
+    // not found game
+    if (!doc || !doc.exists) {
+      response.status(404).send('Game not found');
+      return;
+    }
 
-    g.player1.id = decodedIdToken.uid;
+    const game: OnlineGame = doc.data();
+
+    // not part of the game (spectator)
+    if (game.player1.id !== user.uid && game.player2.id !== user.uid) {
+      response.status(403).send('You are not playing in this game');
+      return;
+    }
+
+    await admin.firestore().collection(COLLECTION).doc(d.gameID).update(g);
+
+    response.status(200).send('ok');
+  })
+);
+
+export const ticTacToe_newGame = functions.region('europe-west2').https.onRequest((request, response) =>
+  corsHandler(request, response, async () => {
+    const g = initGameData();
+
+    if (!request || !request.headers || !request.headers.authorization) {
+      response.status(403).send('Unauthorized');
+    }
+
+    // @ts-ignore
+    const idToken = request.headers.authorization.split('Bearer ')[1];
+    const user = await admin.auth().verifyIdToken(idToken);
+
+    g.player1.id = user.uid;
 
     const writeResult = await admin.firestore().collection(COLLECTION).add(g);
-    response.status(200).json({ gameID: writeResult.id, user: decodedIdToken });
+    response.status(200).json({ gameID: writeResult.id });
   })
 );
