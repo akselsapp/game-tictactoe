@@ -14,9 +14,7 @@ type OfflineWrapperProps = {
   game: Game | null;
 };
 
-const OfflineWrapper = ({ user, game, gameID, setGame, setGameID, children }: OfflineWrapperProps) => {
-  const [error, setError] = React.useState();
-
+const OfflineWrapper = ({ game, setGame, children }: OfflineWrapperProps) => {
   if (!game) return null;
 
   const onClick = (g: Game) => (x: number, y: number) => {

@@ -47,7 +47,7 @@ const OnlineWrapper = ({
       }
       setLoading(false);
     });
-  }, [user, gameID]);
+  }, [user, gameID, setGame, setGameID, setError, setLoading]);
 
   let playerMark: any = null;
   if (user && user.uid && game) {
@@ -102,6 +102,8 @@ const OnlineWrapper = ({
                 } catch (err) {
                   setError(`could not reset game, sorry: ${err?.response?.data || ''}`);
                 }
+                // @ts-ignore
+                window.dataLayer.push({ event: 'new-online-game' });
                 setLoading(false);
               }}
             >
