@@ -12,7 +12,7 @@ const stringToPlayerMark = (state: string): (PlayerMark | null) => {
   return null;
 }
 
-const Board = ({game, click}: { game: Game, click: Function }) => {
+const Board = ({game, loading, click}: { game: Game, loading: boolean, click: Function }) => {
   const l1 = game.board[0].split(',');
   const l2 = game.board[1].split(',');
   const l3 = game.board[2].split(',');
@@ -30,7 +30,7 @@ const Board = ({game, click}: { game: Game, click: Function }) => {
   return (
     <div className="board">
       {b.map((line, x) => line.map((mark, y) =>
-        <Cell key={`${x}-${y}`} mark={mark} onClick={() => click(x, y)}/>
+        <Cell key={`${x}-${y}`} loading={loading} mark={mark} onClick={() => click(x, y)}/>
       ))}
     </div>
   )

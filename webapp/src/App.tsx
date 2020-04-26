@@ -23,28 +23,37 @@ const App = () => {
   const [gameType, setGameType] = React.useState<GameType>(gameID ? GameType.ONLINE : GameType.UNSET)
 
   const [user, setUser] = React.useState();
-  const [userID, setUserID] = React.useState();
-  const [error, setError] = React.useState();
+  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
   const [game, setGame] = React.useState<Game | null>(null);
 
   // authenticate the user
   React.useEffect(() => {
     FireService.authenticateAnonymously().then((userCredentials: any) => {
-      setUserID(userCredentials.user.uid);
       setUser(userCredentials.user)
     }).catch(() => setError('anonymous-auth-failed'));
   }, []);
 
   const startOnlineGame = async () => {
-    const gameID = await api.newGame(user);
-    setGameID(gameID)
-    setGameType(GameType.ONLINE);
+    setLoading(true)
+    setError(null);
+    try {
+      const gameID = await api.newGame(user);
+
+      setGameID(gameID)
+      setGameType(GameType.ONLINE);
+    } catch (e) {
+      setError("Sorry, could not create a game");
+    }
+    setLoading(false)
   }
   const startOfflineGame = () => {
+    setError(null);
     setGame(newOfflineGame())
     setGameType(GameType.OFFLINE)
   }
   const reset = () => {
+    setError(null);
     setGameID('');
     setGame(null);
     setGameType(GameType.UNSET)
@@ -63,7 +72,15 @@ const App = () => {
         <div className="UI" style={{marginBottom: 16}}>
           <h1 onClick={reset}>Tic-Tac-Toe</h1>
         </div>
-        <GameWrapper user={user} gameID={gameID} setGame={setGame} setGameID={setGameID} game={game}>
+        <GameWrapper
+          user={user}
+          gameID={gameID}
+          setGame={setGame}
+          setGameID={setGameID}
+          game={game}
+          setLoading={setLoading}
+          setError={setError}
+        >
           {({onClick, ui, interactions}: { onClick: Function, ui: Function, interactions: Function }) => (
             <>
               <div className="indications">
@@ -71,17 +88,31 @@ const App = () => {
               </div>
               {game &&
               <Board
+                loading={loading}
                 game={game}
-                click={onClick(game, gameID)}
+                click={async (x: number, y: number) => {
+                  setLoading(true);
+                  setError(null);
+                  try {
+                    await onClick(game, gameID)(x, y);
+                  } catch (err) {
+                    setError(err?.response?.data || 'Could not click right now')
+                  }
+                  setLoading(false)
+                }}
               />
               }
               <div className="actions">
+                {loading && <div className="loading-wrap">
+                  <div className="loading"/>
+                </div>}
+                <div className="error">{error}</div>
                 {interactions()}
               </div>
             </>
           )}
         </GameWrapper>
-        <StartButtons newOffline={startOfflineGame} newOnline={startOnlineGame} gameType={gameType} user={user}/>
+        <StartButtons newOffline={startOfflineGame} newOnline={startOnlineGame} gameType={gameType} user={user} loading={loading} />
       </div>
 
     </div>

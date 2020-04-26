@@ -11,18 +11,21 @@ type OnlineWrapperProps = {
   setGame: Function;
   setGameID: Function;
   children: Function;
+  setLoading: Function;
+  setError: Function;
   game: Game | null;
 }
 
-const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children}: OnlineWrapperProps) => {
-  const [error, setError] = React.useState();
+const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children, setLoading, setError}: OnlineWrapperProps) => {
 
   React.useEffect(() => {
     if (!user || !gameID) return;
+    setLoading(true)
     FireService.getGame(gameID)
       .onSnapshot((convo) => {
         if (convo && convo.exists) {
-          setError(null);
+          setError(null)
+
 
           // retrieve the game
           const og = convo.data() as Game
@@ -35,9 +38,10 @@ const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children}: Onlin
 
           setGame(og);
         } else {
-          setError('game-not-found');
+          setError('Game not found');
           setGameID();
         }
+        setLoading(false)
       })
   }, [user, gameID])
 
@@ -52,10 +56,10 @@ const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children}: Onlin
   const playerTurn = game ? playerMark === game.turn : false;
 
   const ui = () => (
-    <div style={{ marginBottom: 8 }}>
+    <div style={{marginBottom: 8}}>
       {game && game.status === GameStatus.ONGOING &&
       <div>
-        {playerMark && <p>You are <b>{playerMark}</b> it {playerTurn ? <b>is</b> : <b>is not</b>} your turn</p>}
+        {playerMark && <p>You are <b>{playerMark}</b> it {playerTurn ? 'is' : 'is not'} your turn</p>}
       </div>
       }
 
@@ -77,12 +81,16 @@ const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children}: Onlin
 
   const interactions = () => (
     <div style={{marginTop: 32}}>
-      Send them this link:<br/>
-      <small>
-        <a href={window.location.href}>
-          <b>{window.location.href}</b>
-        </a>
-      </small>
+      {game && game.status === GameStatus.WAITING_FOR_OPPONENT &&
+      <>
+        Send them this link:<br/>
+        <small>
+          <a href={window.location.href}>
+            <b>{window.location.href}</b>
+          </a>
+        </small>
+      </>
+      }
     </div>
   );
 
