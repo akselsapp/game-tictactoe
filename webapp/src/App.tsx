@@ -47,19 +47,17 @@ const App = () => {
       setError('Sorry, could not create a game');
     }
     // @ts-ignore
-    window.dataLayer.push({ event: 'new-online-game' });
+    window.dataLayer.push({ event: 'new_online_game' });
     setLoading(false);
   };
   const startOfflineGame = () => {
     // @ts-ignore
-    window.dataLayer.push({ event: 'new-offline-game' });
+    window.dataLayer.push({ event: 'new_offline_game' });
     setError(null);
     setGame(newOfflineGame());
     setGameType(GameType.OFFLINE);
   };
   const reset = () => {
-    // @ts-ignore
-    window.dataLayer.push({ event: 'new-offline-game' });
     setError(null);
     setGameID('');
     setGame(null);

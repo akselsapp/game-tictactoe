@@ -103,7 +103,7 @@ const OnlineWrapper = ({
                   setError(`could not reset game, sorry: ${err?.response?.data || ''}`);
                 }
                 // @ts-ignore
-                window.dataLayer.push({ event: 'new-online-game' });
+                window.dataLayer.push({ event: 'new_online_game' });
                 setLoading(false);
               }}
             >

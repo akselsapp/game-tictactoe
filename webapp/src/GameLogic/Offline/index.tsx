@@ -59,7 +59,7 @@ const OfflineWrapper = ({ game, setGame, children }: OfflineWrapperProps) => {
               onClick={() => {
                 setGame(newOfflineGame());
                 // @ts-ignore
-                window.dataLayer.push({ event: 'new-offline-game' });
+                window.dataLayer.push({ event: 'new_offline_game' });
               }}
             >
               <b>RESTART</b> GAME
