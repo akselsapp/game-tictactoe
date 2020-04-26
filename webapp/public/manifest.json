@@ -1,5 +1,12 @@
 {
   "name": "Tic-Tac-Toe",
+  "short_name": "TTO",
+  "theme_color": "#fdd835",
+  "background_color": "#004d40",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
   "icons": [
     {
       "src": "/icons/android-icon-36x36.png",
