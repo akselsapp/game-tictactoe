@@ -1,7 +1,7 @@
 import React from 'react';
 
 import * as FireService from '../../services/fire';
-import { Game, GameType, GameStatus } from '../../shared/types';
+import { Game, GameStatus } from '../../shared/types';
 
 import api from './api';
 
@@ -91,6 +91,25 @@ const OnlineWrapper = ({
 
   const interactions = () => (
     <div style={{ marginTop: 32 }}>
+      {game && game.status === GameStatus.END && (
+        <div style={{ marginTop: 32 }}>
+          <div className="btn button-jittery">
+            <button
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  await api.resetGame(user, gameID);
+                } catch (err) {
+                  setError(`could not reset game, sorry: ${err?.response?.data || ''}`);
+                }
+                setLoading(false);
+              }}
+            >
+              <b>RESTART</b> GAME
+            </button>
+          </div>
+        </div>
+      )}
       {game && game.status === GameStatus.WAITING_FOR_OPPONENT && (
         <>
           Send them this link:

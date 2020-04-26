@@ -48,8 +48,25 @@ const newGame = async (user: any) => {
   return data.gameID;
 };
 
+const resetGame = async (user: any, gameID: string) => {
+  const token = await user?.getIdToken(false);
+  const { data } = await axios.post(
+    `${baseURL}/ticTacToe_resetGame`,
+    {
+      gameID,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return data.gameID;
+};
+
 export default {
   join: joinGame,
   onCellClick,
   newGame,
+  resetGame,
 };
