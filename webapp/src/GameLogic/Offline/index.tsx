@@ -55,7 +55,13 @@ const OfflineWrapper = ({ game, setGame, children }: OfflineWrapperProps) => {
       return (
         <div style={{ marginTop: 32 }}>
           <div className="btn button-jittery">
-            <button onClick={() => setGame(newOfflineGame())}>
+            <button
+              onClick={() => {
+                setGame(newOfflineGame());
+                // @ts-ignore
+                window.dataLayer.push({ event: 'new-offline-game' });
+              }}
+            >
               <b>RESTART</b> GAME
             </button>
           </div>
