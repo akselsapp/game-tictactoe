@@ -14,6 +14,7 @@ import OnlineWrapper from './GameLogic/Online';
 import OfflineWrapper from './GameLogic/Offline';
 import StartButtons from './components/StartButtons';
 import api from './GameLogic/Online/api';
+import * as Fire from './services/fire';
 
 const App = () => {
   // retrieve gameID from URL
@@ -46,13 +47,11 @@ const App = () => {
     } catch (e) {
       setError('Sorry, could not create a game');
     }
-    // @ts-ignore
-    window.dataLayer.push({ event: 'new_online_game' });
+    Fire.analytics.logEvent('new_online_game', { type: 'new' });
     setLoading(false);
   };
   const startOfflineGame = () => {
-    // @ts-ignore
-    window.dataLayer.push({ event: 'new_offline_game' });
+    Fire.analytics.logEvent('new_offline_game', { type: 'new' });
     setError(null);
     setGame(newOfflineGame());
     setGameType(GameType.OFFLINE);

@@ -7,6 +7,8 @@ import firebaseConfig from './fireConfig';
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+export const analytics = firebase.analytics();
+
 const COLLECTION = 'tictactoe';
 
 export const authenticateAnonymously = () => firebase.auth().signInAnonymously();

@@ -5,6 +5,8 @@ import actions from './actions';
 import { Game, GameStatus } from '../../shared/types';
 import newOfflineGame from '../../tools/newOfflineGame';
 
+import * as Fire from '../../services/fire';
+
 type OfflineWrapperProps = {
   user: any;
   gameID: string;
@@ -58,8 +60,7 @@ const OfflineWrapper = ({ game, setGame, children }: OfflineWrapperProps) => {
             <button
               onClick={() => {
                 setGame(newOfflineGame());
-                // @ts-ignore
-                window.dataLayer.push({ event: 'new_offline_game' });
+                Fire.analytics.logEvent('new_offline_game', { type: 'restart' });
               }}
             >
               <b>RESTART</b> GAME

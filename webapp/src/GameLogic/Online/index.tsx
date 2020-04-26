@@ -4,6 +4,7 @@ import * as FireService from '../../services/fire';
 import { Game, GameStatus } from '../../shared/types';
 
 import api from './api';
+import * as Fire from '../../services/fire';
 
 type OnlineWrapperProps = {
   user: any;
@@ -102,8 +103,8 @@ const OnlineWrapper = ({
                 } catch (err) {
                   setError(`could not reset game, sorry: ${err?.response?.data || ''}`);
                 }
-                // @ts-ignore
-                window.dataLayer.push({ event: 'new_online_game' });
+
+                Fire.analytics.logEvent('new_online_game', { type: 'restart' });
                 setLoading(false);
               }}
             >
