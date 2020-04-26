@@ -12,7 +12,6 @@ $scaleSmallScreen: 1.5;
   width: $lgSize;
 
   @media (max-width: #{$screen-md-min}) {
-
     width: $lgSize / $scaleSmallScreen;
     margin-top: -($lgSize / $scaleSmallScreen + $uiSize * 2) / $scaleSmallScreen;
     margin-left: -$lgSize / $scaleSmallScreen / 2;

@@ -8,27 +8,30 @@ const corsHandler = cors();
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-enum PlayerMark { CROSS = 'X', CIRCLE = 'O' }
+enum PlayerMark {
+  CROSS = 'X',
+  CIRCLE = 'O',
+}
 
-enum GameStatus { WAITING_FOR_OPPONENT, ONGOING, END}
+enum GameStatus {
+  WAITING_FOR_OPPONENT,
+  ONGOING,
+  END,
+}
 
 type Player = {
-  id: string
-  mark: PlayerMark
-}
-type OnlineBoard = [
-  string,
-  string,
-  string,
-]
+  id: string;
+  mark: PlayerMark;
+};
+type OnlineBoard = [string, string, string];
 export type OnlineGame = {
-  turn: PlayerMark
-  winner: string | ''
-  status: GameStatus
-  player1: Player
-  player2: Player
-  board: OnlineBoard
-}
+  turn: PlayerMark;
+  winner: string | '';
+  status: GameStatus;
+  player1: Player;
+  player2: Player;
+  board: OnlineBoard;
+};
 
 const COLLECTION = 'tictactoe';
 
@@ -38,64 +41,89 @@ const initGameData = (): OnlineGame => ({
   status: GameStatus.WAITING_FOR_OPPONENT,
   player1: {
     id: '',
-    mark: PlayerMark.CROSS
+    mark: PlayerMark.CROSS,
   },
   player2: {
     id: '',
-    mark: PlayerMark.CIRCLE
+    mark: PlayerMark.CIRCLE,
   },
-  board: [
-    '-1,-1,-1',
-    '-1,-1,-1',
-    '-1,-1,-1',
-  ],
-})
+  board: ['-1,-1,-1', '-1,-1,-1', '-1,-1,-1'],
+});
 
 const possibleWinningCombinations = [
   // rows
-  [[0, 0], [0, 1], [0, 2]],
-  [[1, 0], [1, 1], [1, 2]],
-  [[2, 0], [2, 1], [2, 2]],
+  [
+    [0, 0],
+    [0, 1],
+    [0, 2],
+  ],
+  [
+    [1, 0],
+    [1, 1],
+    [1, 2],
+  ],
+  [
+    [2, 0],
+    [2, 1],
+    [2, 2],
+  ],
   // columns
-  [[0, 0], [1, 0], [2, 0]],
-  [[0, 1], [1, 1], [2, 1]],
-  [[0, 2], [1, 2], [2, 2]],
+  [
+    [0, 0],
+    [1, 0],
+    [2, 0],
+  ],
+  [
+    [0, 1],
+    [1, 1],
+    [2, 1],
+  ],
+  [
+    [0, 2],
+    [1, 2],
+    [2, 2],
+  ],
   // diagonals
-  [[0, 0], [1, 1], [2, 2]],
-  [[0, 2], [1, 1], [2, 0]],
+  [
+    [0, 0],
+    [1, 1],
+    [2, 2],
+  ],
+  [
+    [0, 2],
+    [1, 1],
+    [2, 0],
+  ],
 ];
 const gameAuthority = (game: OnlineGame) => {
-  if (!game.player1.id || !game.player2.id) return ({
-    winner: '',
-    status: GameStatus.WAITING_FOR_OPPONENT,
-  })
+  if (!game.player1.id || !game.player2.id)
+    return {
+      winner: '',
+      status: GameStatus.WAITING_FOR_OPPONENT,
+    };
 
-  const l = [
-    game.board[0].split(','),
-    game.board[1].split(','),
-    game.board[2].split(','),
-  ];
+  const l = [game.board[0].split(','), game.board[1].split(','), game.board[2].split(',')];
 
   const sameMark = (pc: number[][]) => {
-    const a = l[pc[0][0]][pc[0][1]]
-    const b = l[pc[1][0]][pc[1][1]]
-    const c = l[pc[2][0]][pc[2][1]]
+    const a = l[pc[0][0]][pc[0][1]];
+    const b = l[pc[1][0]][pc[1][1]];
+    const c = l[pc[2][0]][pc[2][1]];
 
     // if we have a winning combination
     if (a === b && b === c) {
       // it's either player 1
       if (game.player1.mark === a) {
-        return {winner: game.player1.id, status: GameStatus.END}
+        return { winner: game.player1.id, status: GameStatus.END };
       }
       // or player 2
       if (game.player2.mark === a) {
-        return {winner: game.player2.id, status: GameStatus.END}
+        return { winner: game.player2.id, status: GameStatus.END };
       }
     }
-    return {winner: '', status: GameStatus.ONGOING}
-  }
+    return { winner: '', status: GameStatus.ONGOING };
+  };
 
-  let sm = {winner: '', status: GameStatus.ONGOING};
+  let sm = { winner: '', status: GameStatus.ONGOING };
   for (const pc of possibleWinningCombinations) {
     sm = sameMark(pc);
 
@@ -104,7 +132,7 @@ const gameAuthority = (game: OnlineGame) => {
     }
   }
   return sm;
-}
+};
 export const ticTacToe_click = functions.region('europe-west2').https.onRequest((request, response) =>
   corsHandler(request, response, async () => {
     if (!request || !request.headers || !request.headers.authorization) {
@@ -159,10 +187,8 @@ export const ticTacToe_click = functions.region('europe-west2').https.onRequest(
 
     // check if game is running
     if (game.status !== GameStatus.ONGOING) {
-      if (game.status === GameStatus.WAITING_FOR_OPPONENT)
-        response.status(401).send(`Game not started yet`);
-      if (game.status === GameStatus.END)
-        response.status(401).send(`Game ended`);
+      if (game.status === GameStatus.WAITING_FOR_OPPONENT) response.status(401).send(`Game not started yet`);
+      if (game.status === GameStatus.END) response.status(401).send(`Game ended`);
       return;
     }
 
@@ -184,15 +210,15 @@ export const ticTacToe_click = functions.region('europe-west2').https.onRequest(
     game = {
       ...game,
       ...gameAuthority(game),
-    }
+    };
 
     // update game
     await admin.firestore().collection(COLLECTION).doc(d.gameID).update(game);
 
     response.status(200).send('ok');
     return;
-  }));
-
+  })
+);
 
 export const ticTacToe_joinGame = functions.region('europe-west2').https.onRequest((request, response) =>
   corsHandler(request, response, async () => {
@@ -239,7 +265,7 @@ export const ticTacToe_joinGame = functions.region('europe-west2').https.onReque
       }
 
       await admin.firestore().collection(COLLECTION).doc(d.gameID).update(game);
-      response.status(200).json({gameID: d.game, joinedAs: 'player1'});
+      response.status(200).json({ gameID: d.game, joinedAs: 'player1' });
       return;
     }
 
@@ -251,13 +277,13 @@ export const ticTacToe_joinGame = functions.region('europe-west2').https.onReque
         game.status = GameStatus.ONGOING;
       }
       await admin.firestore().collection(COLLECTION).doc(d.gameID).update(game);
-      response.status(200).json({gameID: d.game, joinedAs: 'player2'});
+      response.status(200).json({ gameID: d.game, joinedAs: 'player2' });
       return;
     }
 
     response.status(403).send('Game already full');
-  }));
-
+  })
+);
 
 export const ticTacToe_newGame = functions.region('europe-west2').https.onRequest((request, response) =>
   corsHandler(request, response, async () => {
@@ -278,5 +304,6 @@ export const ticTacToe_newGame = functions.region('europe-west2').https.onReques
     g.player1.id = decodedIdToken.uid;
 
     const writeResult = await admin.firestore().collection(COLLECTION).add(g);
-    response.status(200).json({gameID: writeResult.id, user: decodedIdToken});
-  }));
+    response.status(200).json({ gameID: writeResult.id, user: decodedIdToken });
+  })
+);

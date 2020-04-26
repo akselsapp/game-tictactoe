@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-import * as FireService from "../../services/fire";
-import {Game, GameType, GameStatus} from "../../shared/types";
+import * as FireService from '../../services/fire';
+import { Game, GameType, GameStatus } from '../../shared/types';
 
-import api from './api'
+import api from './api';
 
 type OnlineWrapperProps = {
   user: any;
@@ -14,87 +14,98 @@ type OnlineWrapperProps = {
   setLoading: Function;
   setError: Function;
   game: Game | null;
-}
+};
 
-const OnlineWrapper = ({user, game, gameID, setGame, setGameID, children, setLoading, setError}: OnlineWrapperProps) => {
-
+const OnlineWrapper = ({
+  user,
+  game,
+  gameID,
+  setGame,
+  setGameID,
+  children,
+  setLoading,
+  setError,
+}: OnlineWrapperProps) => {
   React.useEffect(() => {
     if (!user || !gameID) return;
-    setLoading(true)
-    FireService.getGame(gameID)
-      .onSnapshot((convo) => {
-        if (convo && convo.exists) {
-          setError(null)
+    setLoading(true);
+    FireService.getGame(gameID).onSnapshot((convo) => {
+      if (convo && convo.exists) {
+        setError(null);
 
-
-          // retrieve the game
-          const og = convo.data() as Game
-          // join the game
-          if (
-            (!og.player1.id || !og.player2.id) &&
-            (og.player1.id !== user.uid && og.player2.id !== user.uid)) {
-            api.join(user, gameID);
-          }
-
-          setGame(og);
-        } else {
-          setError('Game not found');
-          setGameID();
+        // retrieve the game
+        const og = convo.data() as Game;
+        // join the game
+        if ((!og.player1.id || !og.player2.id) && og.player1.id !== user.uid && og.player2.id !== user.uid) {
+          api.join(user, gameID);
         }
-        setLoading(false)
-      })
-  }, [user, gameID])
 
+        setGame(og);
+      } else {
+        setError('Game not found');
+        setGameID();
+      }
+      setLoading(false);
+    });
+  }, [user, gameID]);
 
   let playerMark: any = null;
   if (user && user.uid && game) {
-    if (game.player1.id === user.uid)
-      playerMark = game.player1.mark;
-    if (game.player2.id === user.uid)
-      playerMark = game.player2.mark
+    if (game.player1.id === user.uid) playerMark = game.player1.mark;
+    if (game.player2.id === user.uid) playerMark = game.player2.mark;
   }
   const playerTurn = game ? playerMark === game.turn : false;
 
   const ui = () => (
-    <div style={{marginBottom: 8}}>
-      {game && game.status === GameStatus.ONGOING &&
-      <div>
-        {playerMark && <p>You are <b>{playerMark}</b> it {playerTurn ? 'is' : 'is not'} your turn</p>}
-      </div>
-      }
+    <div style={{ marginBottom: 8 }}>
+      {game && game.status === GameStatus.ONGOING && (
+        <div>
+          {playerMark && (
+            <p>
+              You are <b>{playerMark}</b> it {playerTurn ? 'is' : 'is not'} your turn
+            </p>
+          )}
+        </div>
+      )}
 
-      {game && game.status === GameStatus.END &&
-      <div>
-        {game.winner &&
-        <>You {game.winner === user.uid ? <b>WON</b> : <b>LOST</b>}</>
-        }
-        {!game.winner && <>{`It's a `}<b>Tie</b></>}
-      </div>
-      }
-      {game && game.status === GameStatus.WAITING_FOR_OPPONENT &&
-      <div>
-        <div>Waiting for an <b>opponent</b></div>
-      </div>
-      }
-    </div>
-  )
-
-  const interactions = () => (
-    <div style={{marginTop: 32}}>
-      {game && game.status === GameStatus.WAITING_FOR_OPPONENT &&
-      <>
-        Send them this link:<br/>
-        <small>
-          <a href={window.location.href}>
-            <b>{window.location.href}</b>
-          </a>
-        </small>
-      </>
-      }
+      {game && game.status === GameStatus.END && (
+        <div>
+          {game.winner && <>You {game.winner === user.uid ? <b>WON</b> : <b>LOST</b>}</>}
+          {!game.winner && (
+            <>
+              {`It's a `}
+              <b>Tie</b>
+            </>
+          )}
+        </div>
+      )}
+      {game && game.status === GameStatus.WAITING_FOR_OPPONENT && (
+        <div>
+          <div>
+            Waiting for an <b>opponent</b>
+          </div>
+        </div>
+      )}
     </div>
   );
 
-  return children({onClick: api.onCellClick(user), ui, interactions});
-}
+  const interactions = () => (
+    <div style={{ marginTop: 32 }}>
+      {game && game.status === GameStatus.WAITING_FOR_OPPONENT && (
+        <>
+          Send them this link:
+          <br />
+          <small>
+            <a href={window.location.href}>
+              <b>{window.location.href}</b>
+            </a>
+          </small>
+        </>
+      )}
+    </div>
+  );
 
-export default OnlineWrapper
+  return children({ onClick: api.onCellClick(user), ui, interactions });
+};
+
+export default OnlineWrapper;
