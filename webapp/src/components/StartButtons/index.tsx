@@ -25,11 +25,13 @@ const StartButtons = ({ gameType, newOffline, newOnline, user, loading }: StartB
 
   return (
     <div>
-      <div className="btn button-jittery">
-        <button disabled={!user || loading} onClick={() => newOnline()}>
-          {user ? okOnline() : notOkOnline()}
-        </button>
-      </div>
+      {!loading && (
+        <div className="btn button-jittery">
+          <button disabled={!user || loading} onClick={() => newOnline()}>
+            {user ? okOnline() : notOkOnline()}
+          </button>
+        </div>
+      )}
       <br />
       <br />
       <div className="btn button-jittery">

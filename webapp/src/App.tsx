@@ -105,17 +105,17 @@ const App = () => {
                 />
               )}
               <div className="actions">
-                {loading && (
-                  <div className="loading-wrap">
-                    <div className="loading" />
-                  </div>
-                )}
                 <div className="error">{error}</div>
                 {interactions()}
               </div>
             </>
           )}
         </GameWrapper>
+        {loading && (
+          <div className="loading-wrap">
+            <div className="loading" />
+          </div>
+        )}
         <StartButtons
           newOffline={startOfflineGame}
           newOnline={startOnlineGame}
