@@ -19,7 +19,7 @@
   <img src="./docs/infra.png" alt="architecture" width="90%" align="center" />
 </div>
 
-- The website if hosted on Amazon S3.
+- The website if hosted on Amazon S3, behind Cloudflare.
 - The user subscribes to Google Cloud Firestore, which is readonly.
 
 ```
@@ -51,7 +51,7 @@ After that, we can do `~60k games` for less a dollar. Which is totally fine, esp
 
 ### Issues
 
-The Google Cloud Functions, as many of other cloud functions, will have a cold boot. This means that if nobody is playing, the first users will suffer a little bit from a slow API. After that it should become fast again.
+The Google Cloud Functions will have a cold boot. This means that if nobody is playing, the first users will suffer a little bit from a slow API. After that, it should become fast again.
 
 
 #### Credits
