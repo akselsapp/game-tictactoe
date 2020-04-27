@@ -1,4 +1,4 @@
-# Game Tic-Tac-Toe
+# Scalable Tic-Tac-Toe Game
 
 
 <div align="center">
