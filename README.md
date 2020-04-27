@@ -49,7 +49,7 @@ With the free tier, with an average of 15 invocations per game, we can do `12500
 
 After that, we can do `~60k games` for less a dollar. Which is totally fine, especially with some sort of ads.
 
-### Issues
+### Issues
 
 The Google Cloud Functions will have a cold boot. This means that if nobody is playing, the first users will suffer a little bit from a slow API. After that, it should become fast again.
 
